@@ -127,6 +127,7 @@ def get_class_with_name(classname) -> Type:
     return getattr(sys.modules[__name__], classname)
 
 def parse_prompt_json(id: str, content: Dict[str, Any]) -> Prompt:
+    content = content.copy()
     prompt_class_name = content.pop("prompt_class")
     return get_class_with_name(prompt_class_name)(id, **content)
 

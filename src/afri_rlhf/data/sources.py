@@ -15,6 +15,10 @@ class DatasourceBase(ABC):
         self.prompt = prompt
 
     @abstractmethod
+    def get_datasource_name(self):
+        pass
+
+    @abstractmethod
     def load_from_external(self) -> datasets.Dataset:
         """Loads dataset from extranal sources such as Huggingface.
 
@@ -54,7 +58,8 @@ class DatasourceBase(ABC):
             "instruction": self.prompt.instruction,
             "input": self.get_prompt_inputs(item),
             "response": self.get_prompt_response(item),
-            "prompt_header": self.prompt.header
+            "prompt_header": self.prompt.header,
+            "datasource": self.get_datasource_name()
         }
 
     @abstractmethod
@@ -87,10 +92,15 @@ class DatasourceBase(ABC):
         Returns:
             datasets.Datasets: Dataset after applying prompt formatting.
         """
-
-        dataset = self.load_from_external().map(self.get_prompt_sections)
+        
+        dataset = self.load_from_external()
+        original_columns = dataset.column_names
+        
+        dataset = dataset.map(self.get_prompt_sections, batched=False).remove_columns(original_columns)
+        
         if apply_formatting:
             dataset = dataset.map(self.format_prompt)
+        
         return dataset
     
 
@@ -123,10 +133,16 @@ class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
 
     def get_prompt_response(self,  item: Dict[str, Any]) -> str:
         return self.id_to_label[item["label"]]
+    
+    def get_datasource_name(self):
+        return "afrisent"
 
 class MasakhaNewsDatasource(DatasourceBase, ABC):
     def load_from_external(self):
         return datasets.load_dataset("masakhane/masakhanews", self.language.iso_code)[self.split]
+    
+    def get_datasource_name(self):
+        return "masakhanews"
 
 class MasakhaNewsHeadlineGenerationDatasource(MasakhaNewsDatasource):
 
@@ -220,6 +236,9 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
             return self.empty_entities_response 
        
         return entity_entity_words
+    
+    def get_datasource_name(self):
+        return "masakhaner"
 
         
 CCAlignedDatasourceTypes = Literal["sentences", "documents"]
@@ -251,6 +270,9 @@ class CCAlignedDatasource(DatasourceBase):
             target_language_code = self.language.locale_code.replace("-", "_")
 
         return item["translation"][target_language_code]
+    
+    def get_datasource_name(self):
+        return "ccaligned"
 
 class XlsumDatasource(DatasourceBase):
     def __init__(self, *, language: Language, split: str, prompt: Prompt):
@@ -266,6 +288,9 @@ class XlsumDatasource(DatasourceBase):
 
     def get_prompt_response(self,  item: Dict[str, Any]) -> str:
         return item["summary"]
+    
+    def get_datasource_name(self):
+        return "xlsum"
 
 ## Summarization
 # https://huggingface.co/datasets/csebuetnlp/xlsum
