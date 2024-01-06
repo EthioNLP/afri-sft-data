@@ -13,14 +13,14 @@ prompt_templates = {
             ### Input:
             {input}
 
-            ### Response: {response}
+            ### Response: {output}
         """,
     "without_inputs": """
             {prompt_header}
             ### Instruction:
             {instruction}
 
-            ### Response: {response}
+            ### Response: {output}
         """
 }
 

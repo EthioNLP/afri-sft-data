@@ -57,7 +57,7 @@ class DatasourceBase(ABC):
         return {
             "instruction": self.prompt.instruction,
             "input": self.get_prompt_inputs(item),
-            "response": self.get_prompt_response(item),
+            "output": self.get_prompt_output(item),
             "prompt_header": self.prompt.header,
             "datasource": self.get_datasource_name()
         }
@@ -75,14 +75,14 @@ class DatasourceBase(ABC):
         pass
 
     @abstractmethod
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
-        """Gets prompt response from a dataset record
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        """Gets prompt output from a dataset record
 
         Args:
             item (Dict[str, Any]): Dataset record
 
         Returns:
-            str: Prompt response
+            str: Prompt output
         """
         pass
 
@@ -131,7 +131,7 @@ class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["tweet"]
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return self.id_to_label[item["label"]]
     
     def get_datasource_name(self):
@@ -149,7 +149,7 @@ class MasakhaNewsHeadlineGenerationDatasource(MasakhaNewsDatasource):
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["text"]
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["headline"]
 
 class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationDatasourceBase):
@@ -166,7 +166,7 @@ class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationD
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["text"]
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return self.id_to_label[item["label"]]
     
 class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
@@ -183,11 +183,11 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         }
     
 
-    def __init__(self, *, language: Language, split: str, prompt: Prompt, entity_to_extract: str, empty_entities_response: str, use_v2: bool = True):
+    def __init__(self, *, language: Language, split: str, prompt: Prompt, entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
         super().__init__(language=language, split=split, prompt=prompt)
         self.use_v2 = use_v2
         self.entity_to_extract = entity_to_extract.upper().replace("B-", "").replace("I-", "")
-        self.empty_entities_response = empty_entities_response
+        self.empty_entities_output = empty_entities_output
 
 
     def load_from_external(self):
@@ -224,7 +224,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return " ".join(item["tokens"])
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         
         assert len(item["ner_tags"]) == len(item["tokens"])
 
@@ -233,7 +233,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         entity_entity_words = ", ".join(entity_entity_words)
 
         if entity_entity_words == "":
-            return self.empty_entities_response 
+            return self.empty_entities_output 
        
         return entity_entity_words
     
@@ -262,7 +262,7 @@ class CCAlignedDatasource(DatasourceBase):
 
         return item["translation"][source_language_code]
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         if self.transilate_to_english:
             target_language_code = "en_XX"
 
@@ -286,7 +286,7 @@ class XlsumDatasource(DatasourceBase):
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["text"]
 
-    def get_prompt_response(self,  item: Dict[str, Any]) -> str:
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["summary"]
     
     def get_datasource_name(self):
