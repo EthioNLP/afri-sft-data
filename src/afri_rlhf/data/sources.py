@@ -8,7 +8,6 @@ from afri_rlhf.utils.language import Language
 
 
 class DatasourceBase(ABC):
-    prompt_header: str = "ከዚህ በታች አንድን ተግባር የሚገልጽ መመሪያ ተጨማሪ አውድ ከሚሰጥ ግብአት ጋር ተጣምሮ አለ። ጥያቄውን በትክክል የሚያጠናቅቅ ምላሽ ስጥ።"
     def __init__(self, *, language: Language, split: str, prompt: Prompt):
         self.split = split
         self.language = language
@@ -16,7 +15,7 @@ class DatasourceBase(ABC):
 
     @abstractmethod
     def get_datasource_name(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def load_from_external(self) -> datasets.Dataset:
@@ -25,7 +24,7 @@ class DatasourceBase(ABC):
         Returns:
             datasets.Dataset: Dataset loaded from extral sources.
         """
-        pass
+        raise NotImplementedError
 
     def format_prompt(self, prompt_sections: Dict[str, str]) -> Dict[str, str]:
         """Creates a prompt from a record. It makes it possible to train RLHF model
@@ -72,7 +71,7 @@ class DatasourceBase(ABC):
         Returns:
             str: Prompt inputs
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
@@ -84,7 +83,7 @@ class DatasourceBase(ABC):
         Returns:
             str: Prompt output
         """
-        pass
+        raise NotImplementedError
 
     def load_dataset(self, apply_formatting = False) -> datasets.Dataset:
         """Loads the dataset
@@ -106,7 +105,7 @@ class DatasourceBase(ABC):
 
 class ClassificationDatasourceBase:
 
-    id_to_label: Dict[str, int] = None
+    id_to_label: Dict[int, str] = None
     
 
     @property
@@ -115,7 +114,7 @@ class ClassificationDatasourceBase:
     
 class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
 
-    id_to_label: Dict[str, int] = {
+    id_to_label: Dict[int, str] = {
         0: "አዎንታዊ",
         1: "ገለልተኛ",
         2: "አሉታዊ"
@@ -136,6 +135,7 @@ class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
     
     def get_datasource_name(self):
         return "afrisent"
+    
 
 class MasakhaNewsDatasource(DatasourceBase, ABC):
     def load_from_external(self):
@@ -153,7 +153,7 @@ class MasakhaNewsHeadlineGenerationDatasource(MasakhaNewsDatasource):
         return item["headline"]
 
 class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationDatasourceBase):
-    id_to_label: Dict[str, int] = {
+    id_to_label: Dict[int, str] = {
             0: "ብዝነስ",
             1: "መዝናኛ",
             2: "ጤና",
@@ -170,7 +170,7 @@ class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationD
         return self.id_to_label[item["label"]]
     
 class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
-    id_to_label: Dict[str, int] = {
+    id_to_label: Dict[int, str] = {
             0: "O",
             1: "B-DATE",
             2: "I-DATE",

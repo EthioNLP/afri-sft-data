@@ -82,6 +82,7 @@ prompts = {
         "prompt_class": "ClassificationPrompt",
         "prompt_class": "ClassificationPrompt",
     },
+
 }
 
 
