@@ -47,7 +47,7 @@ def create_instruction_templates(raw_templates: List[str], task_type, **kwargs) 
         outputs.append(base_template_copy)
     return outputs
 if __name__ == "__main__":
-    templates_df = load_template("../resources/Template Generation.xlsx", "Spelling Correction")
+    templates_df = load_template("../resources/Template Generation.xlsx", "NER")
    
     instruction_templates = create_instruction_templates(templates_df.instruction.tolist(), "NER")
     print(instruction_templates)
