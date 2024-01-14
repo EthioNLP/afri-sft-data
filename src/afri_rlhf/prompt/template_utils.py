@@ -46,8 +46,11 @@ def create_instruction_templates(raw_templates: List[str], task_type, **kwargs) 
         base_template_copy["instruction"] = template
         outputs.append(base_template_copy)
     return outputs
-if __name__ == "__main__":
-    templates_df = load_template("../resources/Template Generation.xlsx", "NER")
+def get_instruction_templates_from_excel(path, sheet_name, task_type, **kwargs):
+    templates_df = load_template(path, sheet_name)
    
-    instruction_templates = create_instruction_templates(templates_df.instruction.tolist(), "NER")
-    print(instruction_templates)
+    instruction_templates = create_instruction_templates(templates_df.instruction.tolist(), task_type, **kwargs)
+    return instruction_templates
+
+if __name__ == "__main__":
+    print(get_instruction_templates_from_excel("../resources/Template Generation.xlsx", "NER", "NER"))

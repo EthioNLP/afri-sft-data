@@ -21,7 +21,7 @@ src
 ```
 
 
-## How Add Datasource
+## How to add Datasource
 
 
 Datasource classes serve as the interface for importing datasets from external sources. These specialized classes play a crucial role in loading datasets and generating instructional datasets specifically tailored for training Reinforcement Learning with Human Feedback (RLHF) models. The datasets sourced from external repositories encompass a diverse array of tasks, ranging from classification to summarization and translation.
@@ -109,9 +109,9 @@ Several support prompt classes are provided:
 
 prompt_content = {
         "task_type": "pos",
-        "prompt_language": "amh",# This is currently not support but it should be provided to make it compatible in the future
-        "header": "", # This is also not support, but should be provided for compatablity in the future
-        "prompt_template": "with_inputs",  # This is also not support, but should be provided for compatablity in the future
+        "prompt_language": "amh", # Currently not used! Will be used in the future
+        "header": "",  # Currently not used! Will be used in the future
+        "prompt_template": "with_inputs",   # Currently not used! Will be used in the future
         "instruction": """በዚህ አረፍተ ነገር ውስጥ እያንዳንዱን ቃል ስም፣ ግስ፣ ገላጭ፣ ወዘተ እያልክ መድብ""",
         "prompt_class": "Prompt",
     }
@@ -136,10 +136,9 @@ prompt_id = "id010"
 
 # Prompt content.
 prompt_content = {
-        "task_type": "pos",
-        "prompt_language": "amh",# This is currently not support but it should be provided to make it compatible in the future
-        "header": amharic_prompt_header_with_inputs, # This is also not support, but should be provided for compatablity in the future
-        "prompt_template": "with_inputs",  # This is also not support, but should be provided for compatablity in the future
+        "task_type": "pos", # Currently not used! Will be used in the future
+        "header": amharic_prompt_header_with_inputs,  # Currently not used! Will be used in the future
+        "prompt_template": "with_inputs",  # Currently not used! Will be used in the future
         "instruction": """በዚህ አረፍተ ነገር ውስጥ እያንዳንዱን ቃል ስም፣ ግስ፣ ገላጭ፣ ወዘተ እያልክ መድብ""",
         "prompt_class": "Prompt",
 }
