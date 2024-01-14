@@ -98,6 +98,7 @@ Once a dictionary for the prompt template is available, the next step involves c
 ID: An identifier uniquely assigned to the prompt.
 Prompt Class: This class abstracts the prompt template dictionary.
 Contents for the Prompt Class Constructor: These contents include instructions, language, and other relevant details.
+
 Several support prompt classes are provided:
 
 * [Prompt](src/afri_rlhf/prompt/templates.py#L89): This serves as the base class for all prompts and can also be utilized to create various types of prompts.
@@ -109,7 +110,7 @@ Several support prompt classes are provided:
 prompt_content = {
         "task_type": "pos",
         "prompt_language": "amh",# This is currently not support but it should be provided to make it compatible in the future
-        "header": amharic_prompt_header_with_inputs, # This is also not support, but should be provided for compatablity in the future
+        "header": "", # This is also not support, but should be provided for compatablity in the future
         "prompt_template": "with_inputs",  # This is also not support, but should be provided for compatablity in the future
         "instruction": """በዚህ አረፍተ ነገር ውስጥ እያንዳንዱን ቃል ስም፣ ግስ፣ ገላጭ፣ ወዘተ እያልክ መድብ""",
         "prompt_class": "Prompt",
@@ -127,7 +128,7 @@ prompt = parse_prompt_json("id010", prompt_content)
 
 ```python
 
-from afri_rlhf.prompt.templates import get_prompt_template_by_id
+from afri_rlhf.prompt.templates import parse_prompt_json
 from afri_rlhf.utils.language import get_language_by_iso_code
 
 # Can be generated using random number generator
