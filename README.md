@@ -93,17 +93,16 @@ prompts = {
 
 ## How to create prompt object from a dictionary
 
-Once, we have a dictionary for the prompt template we can create prompt object. To create prompt object one needs
-- An ID: And identifier or the prompt
-- prompt class: Abstracts away the prompt template dictionary. 
-- Contents for the prompt class constructor. These contents are instruction, language etc.
+Once a dictionary for the prompt template is available, the next step involves creating a prompt object. The creation of a prompt object necessitates the following:
 
-Support prompt classes are
+ID: An identifier uniquely assigned to the prompt.
+Prompt Class: This class abstracts the prompt template dictionary.
+Contents for the Prompt Class Constructor: These contents include instructions, language, and other relevant details.
+Several support prompt classes are provided:
 
-* [Prompt](): This is a base class for all prompts. It can be also used to create many of the prompts
-* [ClassificationPrompt](): A class to create prompt for classification datasources
-* [ClassificationPrompt](): A class to create prompt for translation tasks
-
+* [Prompt](src/afri_rlhf/prompt/templates.py#L89): This serves as the base class for all prompts and can also be utilized to create various types of prompts.
+* [ClassificationPrompt](src/afri_rlhf/prompt/templates.py#L107): This class is designed for creating prompts tailored to classification datasources.
+* [TranslationPrompt](src/afri_rlhf/prompt/templates.py#L117): Specifically crafted for generating prompts suited for translation tasks.
 
 ```python
 
