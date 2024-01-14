@@ -11,5 +11,11 @@ supported_languages = {
         "self_name": "አማርኛ",
         "iso_short_code": "am",
         "locale_code": "am-ET"
+    },
+    "en_us": {
+        "english_name": "English",
+        "self_name": "English",
+        "iso_short_code": "en",
+        "locale_code": "en-US"
     }
 }

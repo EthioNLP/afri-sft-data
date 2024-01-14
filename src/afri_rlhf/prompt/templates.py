@@ -81,7 +81,7 @@ prompts = {
         "instruction": """ከሚከተለው ዐረፍተ ነገር ውስጥ የሰው ስም ዝርዝር አውጣ። አንድም ስም ከለለ፣ "ስም አልተገኘም" በማለት ምላሽ ስጥ።""",
         "prompt_class": "ClassificationPrompt",
         "prompt_class": "ClassificationPrompt",
-    },
+    }
 
 }
 
