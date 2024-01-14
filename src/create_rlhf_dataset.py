@@ -49,7 +49,6 @@ def generate_dataset_from_instruction_templates_excel_sheet(
 def main():
 
     training_datasets = concatenate_datasets([
-        generate_dataset_by_prompt_id("train", "id001", AfriSentDatasource),
         generate_dataset_by_prompt_id("train", "id005", MasakhaNewsClassificationDatasource),
         generate_dataset_by_prompt_id("train", "id002", CCAlignedDatasource, source_type="sentences", transilate_to_english=True),
         generate_dataset_by_prompt_id("train", "id003", XlsumDatasource),
