@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 from typing import Any, Dict, Literal
 import datasets
+from datasets import load_dataset
 
 from afri_rlhf.prompt.templates import Prompt
 from afri_rlhf.utils.language import Language
@@ -18,13 +19,20 @@ class DatasourceBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def load_from_external(self) -> datasets.Dataset:
-        """Loads dataset from extranal sources such as Huggingface.
-
+    def load_from_external(self, dataset_name) -> datasets.Dataset:
+        """Loads dataset from external sources such as Hugging Face.
+        Args:
+            dataset_name (str): the dataset name to fetch from datasets.
         Returns:
-            datasets.Dataset: Dataset loaded from extral sources.
+            datasets.Dataset: Dataset loaded from external sources.
         """
-        raise NotImplementedError
+        try:
+            dataset = load_dataset(dataset_name)
+        except Exception as e:
+            print(f"Error loading dataset '{dataset_name}': {e}")
+            return None
+        
+        return dataset
 
     def format_prompt(self, prompt_sections: Dict[str, str]) -> Dict[str, str]:
         """Creates a prompt from a record. It makes it possible to train RLHF model
