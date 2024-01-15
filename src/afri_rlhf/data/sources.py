@@ -1,6 +1,8 @@
 from abc import abstractmethod, ABC
 from typing import Any, Dict, Literal
 import datasets
+import pandas as pd
+from datasets import Dataset
 
 from afri_rlhf.prompt.templates import Prompt
 from afri_rlhf.utils.language import Language
@@ -19,6 +21,15 @@ class DatasourceBase(ABC):
 
     @abstractmethod
     def load_from_external(self) -> datasets.Dataset:
+        """Loads dataset from extranal sources such as Huggingface.
+
+        Returns:
+            datasets.Dataset: Dataset loaded from extral sources.
+        """
+        raise NotImplementedError
+    
+    @abstractmethod
+    def load_from_local(self) -> datasets.Dataset:
         """Loads dataset from extranal sources such as Huggingface.
 
         Returns:
@@ -291,6 +302,47 @@ class XlsumDatasource(DatasourceBase):
     
     def get_datasource_name(self):
         return "xlsum"
+
+class QADatasource(DatasourceBase, ClassificationDatasourceBase):
+
+    id_to_label: Dict[int, str] = {
+        0: "አዎንታዊ",
+        1: "ገለልተኛ",
+        2: "አሉታዊ"
+    }
+
+
+    def __init__(self, *, language: str,  split: str,  prompt) -> None:
+        super().__init__(language=language, split = split, prompt=prompt)
+
+    def load_from_local(self):
+
+        file_paths = {
+            "train": "../data/train.csv",
+            "test": "../data/test.csv",
+            "val": "../data/val.csv",
+        }
+        if self.split not in file_paths:
+            raise ValueError("Invalid split type. Choose from 'train', 'test', or 'val'.")
+        
+        df = pd.read_csv(file_paths[self.split])
+        qa_data = {
+            "question": df["question"].tolist(),
+            "answer": df["answer"].tolist(),
+            "context": df["context"].tolist(),
+        }
+
+        return Dataset.from_dict(qa_data)
+
+    
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["context"]+"\n\n"+item["question"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["answer"]
+    
+    def get_datasource_name(self):
+        return "amharicqa"
 
 ## Summarization
 # https://huggingface.co/datasets/csebuetnlp/xlsum
