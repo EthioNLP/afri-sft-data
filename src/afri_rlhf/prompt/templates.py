@@ -81,6 +81,14 @@ prompts = {
         "instruction": """ከሚከተለው ዐረፍተ ነገር ውስጥ የሰው ስም ዝርዝር አውጣ። አንድም ስም ከለለ፣ "ስም አልተገኘም" በማለት ምላሽ ስጥ።""",
         "prompt_class": "ClassificationPrompt",
         "prompt_class": "ClassificationPrompt",
+    },
+    "id007":{
+        'task_type': 'question_answering',
+        'prompt_language': 'amh',
+        'header': amharic_prompt_header_with_inputs,
+        'prompt_template': 'with_inputs',
+        'instruction': 'ከታች አጭር ንባብ እና ንባቡ ላይ የተመሰረተ ጥያቄዎች ቅረበዋል ንባቡ ላይ በመመስረት ጥያቄዎችን መልስ ስጥ',
+        'prompt_class': 'Prompt'
     }
 
 }
@@ -125,6 +133,7 @@ class TranslationPrompt(Prompt):
     
 
 def get_class_with_name(classname) -> Type:
+    print("class with name", getattr(sys.modules[__name__], classname))
     return getattr(sys.modules[__name__], classname)
 
 def parse_prompt_json(id: str, content: Dict[str, Any]) -> Prompt:
