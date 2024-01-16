@@ -97,7 +97,7 @@ class Prompt:
     def __hash__(self):
         return (self.id, self.task_type, self.prompt_language, self.prompt_template)
     def __str__(self) -> str:
-        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
+        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstruction= {self.instruction},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
     def __repr__(self):
         return str(self)
     def format(self, **kwargs):
