@@ -81,6 +81,14 @@ prompts = {
         "instruction": """ከሚከተለው ዐረፍተ ነገር ውስጥ የሰው ስም ዝርዝር አውጣ። አንድም ስም ከለለ፣ "ስም አልተገኘም" በማለት ምላሽ ስጥ።""",
         "prompt_class": "ClassificationPrompt",
         "prompt_class": "ClassificationPrompt",
+    },
+    "id007":{
+        'task_type': 'question_answering',
+        'prompt_language': 'amh',
+        'header': amharic_prompt_header_with_inputs,
+        'prompt_template': 'with_inputs',
+        'instruction': 'ከታች አጭር ንባብ እና ንባቡ ላይ የተመሰረተ ጥያቄዎች ቅረበዋል ንባቡ ላይ በመመስረት ጥያቄዎችን መልስ ስጥ',
+        'prompt_class': 'Prompt'
     }
 
 }
@@ -97,7 +105,7 @@ class Prompt:
     def __hash__(self):
         return (self.id, self.task_type, self.prompt_language, self.prompt_template)
     def __str__(self) -> str:
-        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
+        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstruction= {self.instruction},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
     def __repr__(self):
         return str(self)
     def format(self, **kwargs):
@@ -125,6 +133,7 @@ class TranslationPrompt(Prompt):
     
 
 def get_class_with_name(classname) -> Type:
+    print("class with name", getattr(sys.modules[__name__], classname))
     return getattr(sys.modules[__name__], classname)
 
 def parse_prompt_json(id: str, content: Dict[str, Any]) -> Prompt:
