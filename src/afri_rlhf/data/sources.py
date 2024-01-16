@@ -3,6 +3,7 @@ from typing import Any, Dict, Literal
 import datasets
 import pandas as pd
 from datasets import Dataset
+import os
 
 from afri_rlhf.prompt.templates import Prompt
 from afri_rlhf.utils.language import Language
@@ -28,14 +29,6 @@ class DatasourceBase(ABC):
         """
         raise NotImplementedError
     
-    @abstractmethod
-    def load_from_local(self) -> datasets.Dataset:
-        """Loads dataset from extranal sources such as Huggingface.
-
-        Returns:
-            datasets.Dataset: Dataset loaded from extral sources.
-        """
-        raise NotImplementedError
 
     def format_prompt(self, prompt_sections: Dict[str, str]) -> Dict[str, str]:
         """Creates a prompt from a record. It makes it possible to train RLHF model
@@ -303,24 +296,19 @@ class XlsumDatasource(DatasourceBase):
     def get_datasource_name(self):
         return "xlsum"
 
-class QADatasource(DatasourceBase, ClassificationDatasourceBase):
-
-    id_to_label: Dict[int, str] = {
-        0: "አዎንታዊ",
-        1: "ገለልተኛ",
-        2: "አሉታዊ"
-    }
+class QADatasource(DatasourceBase):
 
 
-    def __init__(self, *, language: str,  split: str,  prompt) -> None:
+    def __init__(self, *, language: str,  split: str,  prompt, data_dir) -> None:
         super().__init__(language=language, split = split, prompt=prompt)
+        self.data_dir = data_dir
 
-    def load_from_local(self):
+    def load_from_external(self) -> datasets.Dataset:
 
         file_paths = {
-            "train": "../data/train.csv",
-            "test": "../data/test.csv",
-            "val": "../data/val.csv",
+            'train': os.path.join(self.data_dir, 'train.csv'),
+            'test': os.path.join(self.data_dir, 'test.csv'),
+            'val': os.path.join(self.data_dir, 'val.csv'),
         }
         if self.split not in file_paths:
             raise ValueError("Invalid split type. Choose from 'train', 'test', or 'val'.")
