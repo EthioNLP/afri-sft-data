@@ -111,8 +111,13 @@ class PrivateDatasource(DatasourceBase):
         super().__init__(language=language, split=split, prompt=prompt)
         self.hf_token =  os.environ.get("HuggigFace_TOKEN")
 
+    @abstractmethod
+    def get_dataset_location(self):
+        raise NotImplementedError
+    
     def load_from_external(self) -> datasets.Dataset:
-        return datasets.load_dataset("israel/AmharicQA", token=self.hf_token, split=self.split)
+        return datasets.load_dataset(self.get_dataset_location(), token=self.hf_token, split=self.split)
+
     
 class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
 
@@ -121,11 +126,7 @@ class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
         1: "ገለልተኛ",
         2: "አሉታዊ"
     }
-
-
-    def __init__(self, *, language: str,  split: str,  prompts: Union[Prompt, List[Prompt]]) -> None:
-        super().__init__(language=language, split = split, prompts=prompts)
-
+    
     def load_from_external(self):
         return datasets.load_dataset("shmuhammad/AfriSenti-twitter-sentiment", self.language.iso_code, split = self.split)
     
@@ -277,9 +278,7 @@ class CCAlignedDatasource(DatasourceBase):
         return "ccaligned"
 
 class XlsumDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompts: Union[Prompt, List[Prompt]]):
-        super().__init__(language=language, split=split, prompts=prompts)
-
+    
     def load_from_external(self) -> datasets.Dataset:
         language = self.language.english_name.lower()
         dataset = datasets.load_dataset("csebuetnlp/xlsum", language)[self.split]
@@ -295,10 +294,10 @@ class XlsumDatasource(DatasourceBase):
         return "xlsum"
 
 class QADatasource(PrivateDatasource):
-    def __init__(self, *, language: str,  split: str,  prompt) -> None:
-        super().__init__(language=language, split = split, prompt=prompt)
-
-
+    
+    def get_dataset_location(self):
+        raise "israel/AmharicQA"
+    
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["context"]+"\n\n"+item["question"]
 
@@ -307,6 +306,128 @@ class QADatasource(PrivateDatasource):
     
     def get_datasource_name(self):
         return "amharicqa"
+
+
+class XlsumReverseDatasource(XlsumDatasource):
+
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["summary"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["text"]
+    
+    
+class SpellingDatasource(PrivateDatasource):
+
+    def get_dataset_location(self):
+        raise "israel/AmharicSpellCheck"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["source"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["target"]
+    
+    def get_datasource_name(self):
+        return "amharic_spellcheck"
+
+
+    
+class AmharicPoemCompletionDatasource(PrivateDatasource):
+    
+    
+    
+    def get_dataset_location(self):
+        return "israel/AmharicPoem"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["input"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["output"]
+  
+    def get_datasource_name(self):
+        return "amharic_poem"
+
+class AmharicZefenDatasource(AmharicPoemCompletionDatasource):
+
+    def get_dataset_location(self):
+        return "israel/AmharicZefen"
+    
+    def get_datasource_name(self):
+        return "amharic_zefen"
+
+
+class AmharicStoryGenerationDatasource(PrivateDatasource):
+
+    
+    def get_dataset_location(self):
+        return "israel/AmharicStoryGeneration"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["title"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["body"]
+    
+    def get_datasource_name(self):
+        return "amharic_story_generation"
+    
+
+class AmharicMezmurCompletionDatasource(PrivateDatasource):
+
+    
+    def get_dataset_location(self):
+        return "israel/MezmurCompletion"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["source"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["target"]
+    
+    def get_datasource_name(self):
+        return "amharic_mezmur_completion"
+
+class AmharicMezmurGenerationDatasource(PrivateDatasource):
+
+    
+    def get_dataset_location(self):
+        return "israel/MezmurGeneration"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["title"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["lyrics"]
+    
+    def get_datasource_name(self):
+        return "amharic_mezmur_generation"
+    
+class AmharicEnglishMTDatasource(PrivateDatasource):
+    def get_dataset_location(self):
+        return "israel/AmharicMT"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["amh"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["eng"]
+    
+    def get_datasource_name(self):
+        return "amharic_mt"
+    
+class EnglishAmharicMTDatasource(AmharicEnglishMTDatasource):
+    def get_dataset_location(self):
+        return "israel/AmharicMT"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["eng"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["amh"]
+
 
 ## Summarization
 # https://huggingface.co/datasets/csebuetnlp/xlsum

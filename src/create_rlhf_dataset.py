@@ -58,14 +58,21 @@ def main():
 
 
     training_datasets = concatenate_datasets([
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification"),
-        generate_dataset_by_prompt_id("train", "id005", MasakhaNewsClassificationDatasource),
-        generate_dataset_by_prompt_id("train", "id002", CCAlignedDatasource, source_type="sentences", transilate_to_english=True),
-        generate_dataset_by_prompt_id("train", "id003", XlsumDatasource),
-        generate_dataset_by_prompt_id("train", "id006", MasakhaNERDatasource, entity_to_extract= "PER", empty_entities_output = "ስም አልተገኘም", use_v2=False),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts= False),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", randomize_prompts=True)
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts=True),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="train", task_sub_type="news_classification"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=MasakhaNewsHeadlineGenerationDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train"),
 
+        # Fix the issue with translation(Needs further check if we support the templates)
+        # generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train"),
+        # generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train")
     ])
 
     validation_datasets = concatenate_datasets([
