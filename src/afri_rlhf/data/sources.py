@@ -116,6 +116,14 @@ class ClassificationDatasourceBase:
     def label_to_id(self) -> Dict[str, int]:
         return {value:key for key, value in self.id_to_label.items()}
     
+class PrivateDatasource(DatasourceBase):
+    def __init__(self, *, language: Language, split: str, prompt: Prompt):
+        super().__init__(language=language, split=split, prompt=prompt)
+        self.hf_token =  os.environ.get("HuggigFace_TOKEN")
+
+    def load_from_external(self) -> datasets.Dataset:
+        return datasets.load_dataset("israel/AmharicQA", token=self.hf_token, split=self.split)
+    
 class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
 
     id_to_label: Dict[int, str] = {
@@ -296,33 +304,12 @@ class XlsumDatasource(DatasourceBase):
     def get_datasource_name(self):
         return "xlsum"
 
-class QADatasource(DatasourceBase):
+class QADatasource(PrivateDatasource):
 
 
-    def __init__(self, *, language: str,  split: str,  prompt, data_dir) -> None:
+    def __init__(self, *, language: str,  split: str,  prompt) -> None:
         super().__init__(language=language, split = split, prompt=prompt)
-        self.data_dir = data_dir
 
-    def load_from_external(self) -> datasets.Dataset:
-
-        file_paths = {
-            'train': os.path.join(self.data_dir, 'train.csv'),
-            'test': os.path.join(self.data_dir, 'test.csv'),
-            'val': os.path.join(self.data_dir, 'val.csv'),
-        }
-        if self.split not in file_paths:
-            raise ValueError("Invalid split type. Choose from 'train', 'test', or 'val'.")
-        
-        df = pd.read_csv(file_paths[self.split])
-        qa_data = {
-            "question": df["question"].tolist(),
-            "answer": df["answer"].tolist(),
-            "context": df["context"].tolist(),
-        }
-
-        return Dataset.from_dict(qa_data)
-
-    
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["context"]+"\n\n"+item["question"]
 
