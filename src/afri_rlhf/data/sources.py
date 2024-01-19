@@ -115,8 +115,8 @@ class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
     }
 
 
-    def __init__(self, *, language: str,  split: str,  prompt) -> None:
-        super().__init__(language=language, split = split, prompt=prompt)
+    def __init__(self, *, language: str,  split: str,  prompts: Union[Prompt, List[Prompt]]) -> None:
+        super().__init__(language=language, split = split, prompts=prompts)
 
     def load_from_external(self):
         return datasets.load_dataset("shmuhammad/AfriSenti-twitter-sentiment", self.language.iso_code, split = self.split)
@@ -177,8 +177,8 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         }
     
 
-    def __init__(self, *, language: Language, split: str, prompt: Prompt, entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
-        super().__init__(language=language, split=split, prompt=prompt)
+    def __init__(self, *, language: Language, split: str, prompts: Prompt, entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
+        super().__init__(language=language, split=split, prompts=prompts)
         self.use_v2 = use_v2
         self.entity_to_extract = entity_to_extract.upper().replace("B-", "").replace("I-", "")
         self.empty_entities_output = empty_entities_output
@@ -238,7 +238,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
 CCAlignedDatasourceTypes = Literal["sentences", "documents"]
 class CCAlignedDatasource(DatasourceBase):
     def __init__(self, *, language: Language, split: str, prompts: Prompt, source_type, transilate_to_english: bool = False) -> None:
-        super().__init__(language=language, split = split, prompt=prompts)
+        super().__init__(language=language, split = split, prompts=prompts)
         self.source_type = source_type        
         self.transilate_to_english = transilate_to_english
     
@@ -269,8 +269,8 @@ class CCAlignedDatasource(DatasourceBase):
         return "ccaligned"
 
 class XlsumDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompt: Prompt):
-        super().__init__(language=language, split=split, prompt=prompt)
+    def __init__(self, *, language: Language, split: str, prompts: Prompt):
+        super().__init__(language=language, split=split, prompts=prompts)
 
     def load_from_external(self) -> datasets.Dataset:
         language = self.language.english_name.lower()
@@ -289,8 +289,8 @@ class XlsumDatasource(DatasourceBase):
 class QADatasource(DatasourceBase):
 
 
-    def __init__(self, *, language: str,  split: str,  prompt, data_dir) -> None:
-        super().__init__(language=language, split = split, prompt=prompt)
+    def __init__(self, *, language: str,  split: str,  prompts, data_dir) -> None:
+        super().__init__(language=language, split = split, prompts=prompts)
         self.data_dir = data_dir
 
     def load_from_external(self) -> datasets.Dataset:
