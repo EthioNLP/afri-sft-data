@@ -7,10 +7,10 @@ import string
 import random
 import os
 
-def generate_dataset_by_prompt(prompt, datasource_class, split, languague_iso_code="amh", **kwargs):
+def generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_code="amh", **kwargs):
 
     language = get_language_by_iso_code(languague_iso_code)
-    source = datasource_class(language=language, split = split, prompt=prompt, **kwargs)
+    source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
     dataset = source.load_dataset(apply_formatting=True).remove_columns(["prompt_header", "datasource", "prompt"])
     return dataset
 
@@ -24,36 +24,47 @@ def generate_random_id(length):
     return "".join([ random.choice(possible_values) for _ in range(length)])
 
 
-def generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code="amh", **kwargs):
-    ds_list = []
+def generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code="amh", randomize_prompts= False, **kwargs):
+    prompts = []
     for template in instruction_templates:
         prompt_id = "id" + generate_random_id(10)
         prompt = parse_prompt_json(prompt_id, template)
-        ds = generate_dataset_by_prompt(prompt, datasource_class, split, languague_iso_code=languague_iso_code, **kwargs)
-        ds_list.append(ds)
-    return concatenate_datasets(ds_list)
+        prompts.append(prompt)
+    
+    if randomize_prompts:
+        ds = generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_code=languague_iso_code, **kwargs)
+        return ds 
+    else:
+        ds_list = []
+        for prompt in prompts:
+            ds = generate_dataset_by_prompt(prompt, datasource_class, split, languague_iso_code=languague_iso_code, **kwargs)
+            ds_list.append(ds)
+        return concatenate_datasets(ds_list)
 
 def generate_dataset_from_instruction_templates_excel_sheet(
     excel_path, 
     excel_sheet_name,
     task_type, 
     datasource_class, 
-    split, languague_iso_code="amh", **kwargs):
+    split, languague_iso_code="amh", randomize_prompts: bool = False, **kwargs):
     
     task_sub_type = kwargs.pop("task_sub_type", None)
     instruction_templates = get_instruction_templates_from_excel(excel_path, excel_sheet_name, task_type, task_sub_type = task_sub_type,  **kwargs)
     
-    return generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code, **kwargs)
+    return generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code, randomize_prompts=randomize_prompts, **kwargs)
 
 
 def main():
 
+
     training_datasets = concatenate_datasets([
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification"),
         generate_dataset_by_prompt_id("train", "id005", MasakhaNewsClassificationDatasource),
         generate_dataset_by_prompt_id("train", "id002", CCAlignedDatasource, source_type="sentences", transilate_to_english=True),
         generate_dataset_by_prompt_id("train", "id003", XlsumDatasource),
         generate_dataset_by_prompt_id("train", "id006", MasakhaNERDatasource, entity_to_extract= "PER", empty_entities_output = "ስም አልተገኘም", use_v2=False),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification")
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts= False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", randomize_prompts=True)
 
     ])
 
