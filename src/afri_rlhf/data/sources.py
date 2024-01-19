@@ -177,7 +177,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         }
     
 
-    def __init__(self, *, language: Language, split: str, prompts: Prompt, entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
+    def __init__(self, *, language: Language, split: str, prompts:Union[Prompt, List[Prompt]], entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
         super().__init__(language=language, split=split, prompts=prompts)
         self.use_v2 = use_v2
         self.entity_to_extract = entity_to_extract.upper().replace("B-", "").replace("I-", "")
@@ -237,7 +237,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         
 CCAlignedDatasourceTypes = Literal["sentences", "documents"]
 class CCAlignedDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompts: Prompt, source_type, transilate_to_english: bool = False) -> None:
+    def __init__(self, *, language: Language, split: str, prompts: Union[List[Prompt], Prompt], source_type, transilate_to_english: bool = False) -> None:
         super().__init__(language=language, split = split, prompts=prompts)
         self.source_type = source_type        
         self.transilate_to_english = transilate_to_english
@@ -269,7 +269,7 @@ class CCAlignedDatasource(DatasourceBase):
         return "ccaligned"
 
 class XlsumDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompts: Prompt):
+    def __init__(self, *, language: Language, split: str, prompts: Union[Prompt, List[Prompt]]):
         super().__init__(language=language, split=split, prompts=prompts)
 
     def load_from_external(self) -> datasets.Dataset:
