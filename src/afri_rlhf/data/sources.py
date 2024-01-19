@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Any, Dict, Literal
+from typing import Any, Dict, List, Literal, Union
 import datasets
 import pandas as pd
 from datasets import Dataset
@@ -7,14 +7,17 @@ import os
 
 from afri_rlhf.prompt.templates import Prompt
 from afri_rlhf.utils.language import Language
-
+import random
 
 
 class DatasourceBase(ABC):
-    def __init__(self, *, language: Language, split: str, prompt: Prompt):
+    def __init__(self, *, language: Language, split: str, prompts: Union[Prompt, List[Prompt]]):
         self.split = split
         self.language = language
-        self.prompt = prompt
+        if type(prompts) == Prompt:
+            prompts = [prompts]
+            
+        self.prompts = prompts
 
     @abstractmethod
     def get_datasource_name(self):
@@ -30,22 +33,6 @@ class DatasourceBase(ABC):
         raise NotImplementedError
     
 
-    def format_prompt(self, prompt_sections: Dict[str, str]) -> Dict[str, str]:
-        """Creates a prompt from a record. It makes it possible to train RLHF model
-        from classification datasets. Prompt sections are header, instructions, input and response. 
-        The input is optional and can be omitted.
-
-        Args:
-            prompt_sections (Dict[str, Any]): Dictionary containing prompt sections
-
-        Returns:
-            Dict[str, str]: Dictionary with formatted prompt. The prompt is created from the prebuilt prompt
-            templates and the current prompt sections
-        """
-
-        output = prompt_sections.copy()
-        output["prompt"] = self.prompt.format(**prompt_sections)
-        return output
 
     def get_prompt_sections(self, item: Dict[str, Any]) -> Dict[str, str]:
         """Gets prompt sections from classification datasets. Prompt sections are header, instructions, input and response. 
@@ -57,11 +44,16 @@ class DatasourceBase(ABC):
         Returns:
             Dict[str, str]: Prompt sections
         """
+        if len(self.prompts) == 1:
+            prompt = self.prompts[0]
+        else:
+            prompt = random.choice(self.prompts)
+
         return {
-            "instruction": self.prompt.instruction,
+            "instruction": prompt.instruction,
             "input": self.get_prompt_inputs(item),
             "output": self.get_prompt_output(item),
-            "prompt_header": self.prompt.header,
+            "prompt_header": prompt.header,
             "datasource": self.get_datasource_name()
         }
 
@@ -89,7 +81,7 @@ class DatasourceBase(ABC):
         """
         raise NotImplementedError
 
-    def load_dataset(self, apply_formatting = False) -> datasets.Dataset:
+    def load_dataset(self) -> datasets.Dataset:
         """Loads the dataset
 
         Returns:
@@ -100,9 +92,7 @@ class DatasourceBase(ABC):
         original_columns = dataset.column_names
         
         dataset = dataset.map(self.get_prompt_sections, batched=False).remove_columns(original_columns)
-        
-        if apply_formatting:
-            dataset = dataset.map(self.format_prompt)
+    
         
         return dataset
     
@@ -247,8 +237,8 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         
 CCAlignedDatasourceTypes = Literal["sentences", "documents"]
 class CCAlignedDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompt: Prompt, source_type, transilate_to_english: bool = False) -> None:
-        super().__init__(language=language, split = split, prompt=prompt)
+    def __init__(self, *, language: Language, split: str, prompts: Prompt, source_type, transilate_to_english: bool = False) -> None:
+        super().__init__(language=language, split = split, prompt=prompts)
         self.source_type = source_type        
         self.transilate_to_english = transilate_to_english
     
