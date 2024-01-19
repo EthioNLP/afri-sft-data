@@ -307,9 +307,8 @@ class XlsumDatasource(DatasourceBase):
 class QADatasource(PrivateDatasource):
 
 
-    def __init__(self, *, language: str,  split: str,  prompt, data_dir) -> None:
+    def __init__(self, *, language: str,  split: str,  prompt) -> None:
         super().__init__(language=language, split = split, prompt=prompt)
-        self.data_dir = data_dir
 
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["context"]+"\n\n"+item["question"]
