@@ -37,6 +37,10 @@ def create_instruction_templates(raw_templates: List[str], task_type, **kwargs) 
         base_template["task_sub_type"] = kwargs.pop("task_sub_type")
     
         base_template["prompt_class"] = "ClassificationPrompt"
+    elif task_type == "translation":
+        base_template["source_language"] = kwargs.pop("source_language")
+        base_template["target_language"] = kwargs.pop("target_language")
+        base_template["prompt_class"] = "TranslationPrompt"
     else:
         base_template["prompt_class"] = "Prompt"
     outputs = []

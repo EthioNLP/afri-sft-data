@@ -46,7 +46,7 @@ prompts = {
         "prompt_class": "TranslationPrompt"
     },
     "id003": {
-        "task_type": "summarization",
+        "task_type": "text_generation",
         "prompt_language": "amh",
         "header": amharic_prompt_header_with_inputs,
         "prompt_template": "with_inputs",
@@ -55,7 +55,7 @@ prompts = {
     },
 
     "id004": {
-        "task_type": "headline_generation",
+        "task_type": "text_generation",
         "prompt_language": "amh",
         "header": amharic_prompt_header_with_inputs,
         "prompt_template": "with_inputs",
@@ -83,7 +83,7 @@ prompts = {
         "prompt_class": "ClassificationPrompt",
     },
     "id007":{
-        'task_type': 'question_answering',
+        'task_type': 'qa',
         'prompt_language': 'amh',
         'header': amharic_prompt_header_with_inputs,
         'prompt_template': 'with_inputs',
@@ -133,7 +133,6 @@ class TranslationPrompt(Prompt):
     
 
 def get_class_with_name(classname) -> Type:
-    print("class with name", getattr(sys.modules[__name__], classname))
     return getattr(sys.modules[__name__], classname)
 
 def parse_prompt_json(id: str, content: Dict[str, Any]) -> Prompt:

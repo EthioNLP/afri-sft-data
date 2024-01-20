@@ -1,8 +1,6 @@
 from abc import abstractmethod, ABC
 from typing import Any, Dict, List, Literal, Union
 import datasets
-import pandas as pd
-from datasets import Dataset
 import os
 
 from afri_rlhf.prompt.templates import Prompt
@@ -110,13 +108,13 @@ class PrivateDatasource(DatasourceBase):
     def __init__(self, *, language: Language, split: str, prompt: Prompt):
         super().__init__(language=language, split=split, prompt=prompt)
         self.hf_token =  os.environ.get("HuggigFace_TOKEN")
-
+        
     @abstractmethod
     def get_dataset_location(self):
         raise NotImplementedError
     
     def load_from_external(self) -> datasets.Dataset:
-        return datasets.load_dataset(self.get_dataset_location(), token=self.hf_token, split=self.split)
+        return datasets.load_dataset(self.get_dataset_location(), use_auth_token=self.hf_token, split=self.split)
 
     
 class AfriSentDatasource(DatasourceBase, ClassificationDatasourceBase):
@@ -345,7 +343,7 @@ class AmharicPoemCompletionDatasource(PrivateDatasource):
         return item["input"]
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
-        return item["output"]
+        return item["ouput"]
   
     def get_datasource_name(self):
         return "amharic_poem"

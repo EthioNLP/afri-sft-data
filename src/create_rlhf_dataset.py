@@ -11,7 +11,13 @@ def generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_c
 
     language = get_language_by_iso_code(languague_iso_code)
     source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
-    dataset = source.load_dataset(apply_formatting=True).remove_columns(["prompt_header", "datasource", "prompt"])
+    if prompts[0].task_type == "translation":
+        kwargs.pop("source_language")
+        kwargs.pop("target_language")
+
+    source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
+    dataset = source.load_dataset(True).remove_columns(["prompt_header", "datasource"])
+
     return dataset
 
 def generate_dataset_by_prompt_id(split, prompt_id, datasource_class, **kwargs):
@@ -49,7 +55,7 @@ def generate_dataset_from_instruction_templates_excel_sheet(
     split, languague_iso_code="amh", randomize_prompts: bool = False, **kwargs):
     
     task_sub_type = kwargs.pop("task_sub_type", None)
-    instruction_templates = get_instruction_templates_from_excel(excel_path, excel_sheet_name, task_type, task_sub_type = task_sub_type,  **kwargs)
+    instruction_templates = get_instruction_templates_from_excel(excel_path, excel_sheet_name, task_type, task_sub_type = task_sub_type,  **kwargs)[:2]
     
     return generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code, randomize_prompts=randomize_prompts, **kwargs)
 
@@ -69,10 +75,8 @@ def main():
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train"),
-
-        # Fix the issue with translation(Needs further check if we support the templates)
-        # generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train"),
-        # generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train")
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train", source_language="አማርኛ", target_language="English"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="train", source_language="English", target_language="አማርኛ")
     ])
 
     validation_datasets = concatenate_datasets([
