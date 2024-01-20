@@ -1,3 +1,4 @@
+from typing import Optional
 from afri_rlhf.data.sources import *
 from afri_rlhf.prompt.templates import get_prompt_template_by_id, parse_prompt_json
 from afri_rlhf.utils.language import get_language_by_iso_code
@@ -10,19 +11,17 @@ import os
 def generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_code="amh", **kwargs):
 
     language = get_language_by_iso_code(languague_iso_code)
-    source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
     if prompts[0].task_type == "translation":
         kwargs.pop("source_language")
         kwargs.pop("target_language")
-
     source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
-    dataset = source.load_dataset(True).remove_columns(["prompt_header", "datasource"])
+    dataset = source.load_dataset().remove_columns(["prompt_header", "datasource"])
 
     return dataset
 
 def generate_dataset_by_prompt_id(split, prompt_id, datasource_class, **kwargs):
     prompt = get_prompt_template_by_id(prompt_id)
-    return generate_dataset_by_prompt(prompt, datasource_class, split, languague_iso_code="amh", **kwargs)
+    return generate_dataset_by_prompt([prompt], datasource_class, split, languague_iso_code="amh", **kwargs)
 
 
 def generate_random_id(length):
@@ -43,7 +42,7 @@ def generate_dataset_from_instruction_templates(instruction_templates, split, da
     else:
         ds_list = []
         for prompt in prompts:
-            ds = generate_dataset_by_prompt(prompt, datasource_class, split, languague_iso_code=languague_iso_code, **kwargs)
+            ds = generate_dataset_by_prompt([prompt], datasource_class, split, languague_iso_code=languague_iso_code, **kwargs)
             ds_list.append(ds)
         return concatenate_datasets(ds_list)
 
@@ -52,46 +51,67 @@ def generate_dataset_from_instruction_templates_excel_sheet(
     excel_sheet_name,
     task_type, 
     datasource_class, 
-    split, languague_iso_code="amh", randomize_prompts: bool = False, **kwargs):
+    split, languague_iso_code="amh", randomize_prompts: bool = False, num_templates_to_use: Optional[int] = None, **kwargs):
     
     task_sub_type = kwargs.pop("task_sub_type", None)
-    instruction_templates = get_instruction_templates_from_excel(excel_path, excel_sheet_name, task_type, task_sub_type = task_sub_type,  **kwargs)[:2]
     
+    instruction_templates = get_instruction_templates_from_excel(excel_path, excel_sheet_name, task_type, task_sub_type = task_sub_type,  **kwargs)
+    if num_templates_to_use is not None:
+        instruction_templates = instruction_templates[:num_templates_to_use]
     return generate_dataset_from_instruction_templates(instruction_templates, split, datasource_class, languague_iso_code, randomize_prompts=randomize_prompts, **kwargs)
+
 
 
 def main():
 
 
     training_datasets = concatenate_datasets([
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts=True),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="train", task_sub_type="news_classification"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="train"),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="train", task_sub_type="news_classification", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="train", randomize_prompts=False),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=MasakhaNewsHeadlineGenerationDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train", source_language="አማርኛ", target_language="English"),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="train", source_language="English", target_language="አማርኛ")
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=MasakhaNewsHeadlineGenerationDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train", randomize_prompts=False),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train", source_language="አማርኛ", target_language="English", randomize_prompts=True),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="train", source_language="English", target_language="አማርኛ", randomize_prompts=True)
     ])
 
     validation_datasets = concatenate_datasets([
-        generate_dataset_by_prompt_id("validation", "id001", AfriSentDatasource),
-        generate_dataset_by_prompt_id("validation", "id005", MasakhaNewsClassificationDatasource),
-        generate_dataset_by_prompt_id("validation", "id003", XlsumDatasource),
-        generate_dataset_by_prompt_id("validation", "id006", MasakhaNERDatasource, entity_to_extract= "PER", empty_entities_output = "ስም አልተገኘም", use_v2=False),
-        
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="validation", task_sub_type="sentiment_classification", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="validation", task_sub_type="news_classification", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="validation", num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=MasakhaNewsHeadlineGenerationDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="validation", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="validation", source_language="አማርኛ", target_language="English", randomize_prompts=True),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="validation", source_language="English", target_language="አማርኛ", randomize_prompts=True)
     ])
+
+
     test_datasets = concatenate_datasets([
-        generate_dataset_by_prompt_id("test", "id001", AfriSentDatasource),
-        generate_dataset_by_prompt_id("test", "id005", MasakhaNewsClassificationDatasource),
-        generate_dataset_by_prompt_id("test", "id003", XlsumDatasource),
-        generate_dataset_by_prompt_id("test", "id006", MasakhaNERDatasource, entity_to_extract= "PER", empty_entities_output = "ስም አልተገኘም", use_v2=False),
-        
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="test", task_sub_type="sentiment_classification", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="test", task_sub_type="news_classification", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="test", num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=MasakhaNewsHeadlineGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="test", source_language="አማርኛ", target_language="English", randomize_prompts=True),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="test", source_language="English", target_language="አማርኛ", randomize_prompts=True)
     ])
 
 

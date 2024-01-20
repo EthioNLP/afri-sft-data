@@ -105,8 +105,8 @@ class ClassificationDatasourceBase:
         return {value:key for key, value in self.id_to_label.items()}
     
 class PrivateDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompt: Prompt):
-        super().__init__(language=language, split=split, prompt=prompt)
+    def __init__(self, *, language: Language, split: str, prompts: Union[List[Prompt], Prompt]):
+        super().__init__(language=language, split=split, prompts=prompts)
         self.hf_token =  os.environ.get("HuggigFace_TOKEN")
         
     @abstractmethod
