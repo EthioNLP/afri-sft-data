@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Dict, List, Literal, Union, Set
 import datasets
 import os
 
@@ -184,10 +184,10 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         }
     
 
-    def __init__(self, *, language: Language, split: str, prompts:Union[Prompt, List[Prompt]], entity_to_extract: str, empty_entities_output: str, use_v2: bool = True):
+    def __init__(self, *, language: Language, split: str, prompts:Union[Prompt, List[Prompt]], entities_to_extract: Set[str], empty_entities_output: str, use_v2: bool = True):
         super().__init__(language=language, split=split, prompts=prompts)
         self.use_v2 = use_v2
-        self.entity_to_extract = entity_to_extract.upper().replace("B-", "").replace("I-", "")
+        self.entities_to_extract = set([entity_to_extract.upper().replace("B-", "").replace("I-", "") for entity_to_extract in entities_to_extract])
         self.empty_entities_output = empty_entities_output
 
 
@@ -197,7 +197,7 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
         else:
             return datasets.load_dataset("masakhaner", self.language.iso_code)[self.split]
     def is_current_entity_label(self, label):
-        return label.upper().replace("B-", "").replace("I-", "") == self.entity_to_extract
+        return label.upper().replace("B-", "").replace("I-", "") in  self.entities_to_extract
 
     def extract_named_entities(self, tokens, tag_ids):
         entity_entity_words = []
@@ -391,6 +391,21 @@ class EnglishAmharicMTDatasource(AmharicEnglishMTDatasource):
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["amh"]
+
+class AmharicNewsTitleGenerationDatasource(PrivateDatasource):
+
+    def get_dataset_location(self):
+        return "israel/TadesDataset"
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["news"]
+
+    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
+        return item["topic"]
+    
+    def get_datasource_name(self):
+        return "amharic_spellcheck"
+
 
 
 ## Summarization
