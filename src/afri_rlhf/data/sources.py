@@ -313,6 +313,11 @@ class AmharicPoemCompletionDatasource(PrivateDatasource):
   
     def get_datasource_name(self):
         return "amharic_poem"
+    
+class AmharicPoemGenerationDatasource(AmharicPoemCompletionDatasource):
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return ""
 
 class AmharicZefenDatasource(AmharicPoemCompletionDatasource):
 
@@ -321,6 +326,11 @@ class AmharicZefenDatasource(AmharicPoemCompletionDatasource):
     
     def get_datasource_name(self):
         return "amharic_zefen"
+
+class AmharicZefenGenerationDatasource(AmharicZefenDatasource):
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return ""
 
 
 class AmharicStoryGenerationDatasource(PrivateDatasource):
@@ -405,16 +415,3 @@ class AmharicNewsTitleGenerationDatasource(PrivateDatasource):
     
     def get_datasource_name(self):
         return "amharic_spellcheck"
-
-
-
-## Summarization
-# https://huggingface.co/datasets/csebuetnlp/xlsum
-"""
-Papers to read
-* Xl summary
-* https://openreview.net/pdf?id=ybc9V6Cbq2
-* LLaMA
-* LLAMA adapter
-* Chinese LLAMA
-"""
