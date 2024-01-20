@@ -153,3 +153,12 @@ dataset = source.load_dataset(apply_formatting=True).remove_columns(["prompt_hea
 ```
 
 
+## Generating Instruction Dataset
+
+Use the following command to generate instruction dataset using instruction templates inside the [template file](resources/Template Generation.xlsx).
+```
+cd src
+python create_rlhf_dataset.py
+```
+
+
