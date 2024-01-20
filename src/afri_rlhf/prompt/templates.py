@@ -46,7 +46,7 @@ prompts = {
         "prompt_class": "TranslationPrompt"
     },
     "id003": {
-        "task_type": "summarization",
+        "task_type": "text_generation",
         "prompt_language": "amh",
         "header": amharic_prompt_header_with_inputs,
         "prompt_template": "with_inputs",
@@ -55,7 +55,7 @@ prompts = {
     },
 
     "id004": {
-        "task_type": "headline_generation",
+        "task_type": "text_generation",
         "prompt_language": "amh",
         "header": amharic_prompt_header_with_inputs,
         "prompt_template": "with_inputs",
@@ -83,7 +83,7 @@ prompts = {
         "prompt_class": "ClassificationPrompt",
     },
     "id007":{
-        'task_type': 'question_answering',
+        'task_type': 'qa',
         'prompt_language': 'amh',
         'header': amharic_prompt_header_with_inputs,
         'prompt_template': 'with_inputs',
@@ -105,7 +105,7 @@ class Prompt:
     def __hash__(self):
         return (self.id, self.task_type, self.prompt_language, self.prompt_template)
     def __str__(self) -> str:
-        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstruction= {self.instruction},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
+        return f"""Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstruction= {self.instruction},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template})"""
     def __repr__(self):
         return str(self)
     def format(self, **kwargs):
@@ -119,7 +119,7 @@ class ClassificationPrompt(Prompt):
     def __hash__(self):
         return super().__hash__() + (self.task_sub_type, )
     def __str__(self) -> str:
-        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template},\n\ttask_sub_type= {self.task_sub_type})"""
+        return f"""Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template},\n\ttask_sub_type= {self.task_sub_type})"""
     
 
 class TranslationPrompt(Prompt):
@@ -129,11 +129,10 @@ class TranslationPrompt(Prompt):
     def __hash__(self):
         return super().__hash__() + (self.task_sub_type, )
     def __str__(self) -> str:
-        return """Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template},\n\tsource_language= {self.source_language},\n\ttarget_language=target_language)"""
+        return f"""Prompt(\nid= {self.id},\n\theader= {self.header},\n\tinstructions= {self.instructions},\n\ttask_type = {self.task_type},\n\tprompt_language = {self.prompt_language},\n\tprompt_template= {self.prompt_template},\n\tsource_language= {self.source_language},\n\ttarget_language=target_language)"""
     
 
 def get_class_with_name(classname) -> Type:
-    print("class with name", getattr(sys.modules[__name__], classname))
     return getattr(sys.modules[__name__], classname)
 
 def parse_prompt_json(id: str, content: Dict[str, Any]) -> Prompt:

@@ -1,8 +1,10 @@
 supported_task_types = {
     "classification",
     "translation",
-    "summarization",
-    "headline_generation"
+    "qa",
+    "spelling_check",
+    "text_generation",
+    "text_completion"
 }
 
 supported_languages = {
