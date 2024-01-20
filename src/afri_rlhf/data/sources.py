@@ -260,7 +260,7 @@ class XlsumDatasource(DatasourceBase):
 class QADatasource(PrivateDatasource):
     
     def get_dataset_location(self):
-        raise "israel/AmharicQA"
+        return "israel/AmharicQA"
     
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["context"]+"\n\n"+item["question"]
