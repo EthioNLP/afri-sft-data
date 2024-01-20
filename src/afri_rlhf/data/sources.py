@@ -241,40 +241,6 @@ class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
     def get_datasource_name(self):
         return "masakhaner"
 
-        
-CCAlignedDatasourceTypes = Literal["sentences", "documents"]
-class CCAlignedDatasource(DatasourceBase):
-    def __init__(self, *, language: Language, split: str, prompts: Union[List[Prompt], Prompt], source_type, transilate_to_english: bool = False) -> None:
-        super().__init__(language=language, split = split, prompts=prompts)
-        self.source_type = source_type        
-        self.transilate_to_english = transilate_to_english
-    
-    def load_from_external(self) -> datasets.Dataset:
-        language_locale_code = self.language.locale_code.replace("-", "_")
-        dataset = datasets.load_dataset("ccaligned_multilingual", language_code=language_locale_code, type=self.source_type)[self.split]
-        return dataset
-   
-    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
-        if self.transilate_to_english:
-            source_language_code = self.language.locale_code.replace("-", "_")
-        else:
-            source_language_code = "en_XX"
-
-
-        return item["translation"][source_language_code]
-
-    def get_prompt_output(self,  item: Dict[str, Any]) -> str:
-        if self.transilate_to_english:
-            target_language_code = "en_XX"
-
-        else:
-            target_language_code = self.language.locale_code.replace("-", "_")
-
-        return item["translation"][target_language_code]
-    
-    def get_datasource_name(self):
-        return "ccaligned"
-
 class XlsumDatasource(DatasourceBase):
     
     def load_from_external(self) -> datasets.Dataset:
