@@ -285,7 +285,7 @@ class XlsumReverseDatasource(XlsumDatasource):
 class SpellingDatasource(PrivateDatasource):
 
     def get_dataset_location(self):
-        raise "israel/AmharicSpellCheck"
+        return "israel/AmharicSpellCheck"
 
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return item["source"]
