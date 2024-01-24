@@ -152,6 +152,8 @@ class MasakhaNewsHeadlineGenerationDatasource(MasakhaNewsDatasource):
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["headline"]
+    def get_datasource_name(self):
+        return "masakhanews_headline_generation"
 
 class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationDatasourceBase):
     id_to_label: Dict[int, str] = {
@@ -168,7 +170,7 @@ class MasakhaNewsClassificationDatasource(MasakhaNewsDatasource, ClassificationD
         return item["text"]
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
-        return self.id_to_label[item["label"]]
+        return f"ይህ ዜና {self.id_to_label[item['label']]} ነው"
     
 class MasakhaNERDatasource(DatasourceBase, ClassificationDatasourceBase):
     id_to_label: Dict[int, str] = {
@@ -255,7 +257,7 @@ class XlsumDatasource(DatasourceBase):
         return item["summary"]
     
     def get_datasource_name(self):
-        return "xlsum"
+        return "xlsum_summerization"
 
 class QADatasource(PrivateDatasource):
     
@@ -280,6 +282,8 @@ class XlsumReverseDatasource(XlsumDatasource):
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["text"]
+    def get_datasource_name(self):
+        return "xlsum_reverse_summerization"
     
     
 class SpellingDatasource(PrivateDatasource):
@@ -300,8 +304,6 @@ class SpellingDatasource(PrivateDatasource):
     
 class AmharicPoemCompletionDatasource(PrivateDatasource):
     
-    
-    
     def get_dataset_location(self):
         return "israel/AmharicPoem"
 
@@ -312,30 +314,35 @@ class AmharicPoemCompletionDatasource(PrivateDatasource):
         return item["ouput"]
   
     def get_datasource_name(self):
-        return "amharic_poem"
+        return "amharic_poem_completion"
     
 class AmharicPoemGenerationDatasource(AmharicPoemCompletionDatasource):
-
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
         return ""
+    def get_datasource_name(self):
+        return "amharic_poem_generation"
 
 class AmharicZefenDatasource(AmharicPoemCompletionDatasource):
 
     def get_dataset_location(self):
         return "israel/AmharicZefen"
-    
+
+    def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
+        return item["input"]
+
     def get_datasource_name(self):
-        return "amharic_zefen"
+        return "amharic_zefen_generation"
 
 class AmharicZefenGenerationDatasource(AmharicZefenDatasource):
 
     def get_prompt_inputs(self,  item: Dict[str, Any]) -> str:
-        return ""
+        return item["input"]
+    
+    def get_datasource_name(self):
+        return "amharic_zefen_generation"
 
 
 class AmharicStoryGenerationDatasource(PrivateDatasource):
-
-    
     def get_dataset_location(self):
         return "israel/AmharicStoryGeneration"
 
@@ -347,7 +354,6 @@ class AmharicStoryGenerationDatasource(PrivateDatasource):
     
     def get_datasource_name(self):
         return "amharic_story_generation"
-    
 
 class AmharicMezmurCompletionDatasource(PrivateDatasource):
 
@@ -390,7 +396,7 @@ class AmharicEnglishMTDatasource(PrivateDatasource):
         return item["eng"]
     
     def get_datasource_name(self):
-        return "amharic_mt"
+        return "amharic_mt amh-eng"
     
 class EnglishAmharicMTDatasource(AmharicEnglishMTDatasource):
     def get_dataset_location(self):
@@ -401,6 +407,8 @@ class EnglishAmharicMTDatasource(AmharicEnglishMTDatasource):
 
     def get_prompt_output(self,  item: Dict[str, Any]) -> str:
         return item["amh"]
+    def get_datasource_name(self):
+        return "amharic_mt eng-amh"
 
 class AmharicNewsTitleGenerationDatasource(PrivateDatasource):
 
@@ -414,4 +422,4 @@ class AmharicNewsTitleGenerationDatasource(PrivateDatasource):
         return item["topic"]
     
     def get_datasource_name(self):
-        return "amharic_spellcheck"
+        return "amharic_title_generation"

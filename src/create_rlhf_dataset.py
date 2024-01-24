@@ -16,7 +16,7 @@ def generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_c
         kwargs.pop("source_language")
         kwargs.pop("target_language")
     source = datasource_class(language=language, split = split, prompts=prompts, **kwargs)
-    dataset = source.load_dataset().remove_columns(["prompt_header", "datasource"])
+    dataset = source.load_dataset() #.remove_columns(["prompt_header", "datasource"])
 
     return dataset
 
@@ -76,22 +76,22 @@ def main():
 
 
     training_datasets = concatenate_datasets([
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="train", task_sub_type="news_classification", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "NER", "classification", datasource_class=MasakhaNERDatasource, split="train", task_sub_type="token_classification", entities_to_extract={"DATE", "LOC", "PER", "ORG"}, empty_entities_output = "ስም አልተገኘም", use_v2=False, randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="train", max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=AmharicNewsTitleGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemGeneration", "text_generation", datasource_class=AmharicPoemGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenGeneration", "text_generation", datasource_class=AmharicZefenGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train", source_language="አማርኛ", target_language="English", randomize_prompts=True, max_output_size = 10_000),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="train", source_language="English", target_language="አማርኛ", randomize_prompts=True, max_output_size = 10_000)
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Sentiment Analysis", "classification", datasource_class=AfriSentDatasource, split="train", task_sub_type="sentiment_classification", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews", "classification", datasource_class=MasakhaNewsClassificationDatasource, split="train", task_sub_type="news_classification", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "NER", "classification", datasource_class=MasakhaNERDatasource, split="train", task_sub_type="token_classification", entities_to_extract={"DATE", "LOC", "PER", "ORG"}, empty_entities_output = "ስም አልተገኘም", use_v2=False, randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "summarization", "text_generation", datasource_class=XlsumDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Reverse  summarization", "text_generation", datasource_class=XlsumReverseDatasource, split="train", max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Masakhanews - title generation", "text_generation", datasource_class=AmharicNewsTitleGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemGeneration", "text_generation", datasource_class=AmharicPoemGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenGeneration", "text_generation", datasource_class=AmharicZefenGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="train", randomize_prompts=False, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="train", source_language="አማርኛ", target_language="English", randomize_prompts=True, max_output_size = 10000),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="train", source_language="English", target_language="አማርኛ", randomize_prompts=True, max_output_size = 10000)
     ])
 
     validation_datasets = concatenate_datasets([
@@ -123,13 +123,12 @@ def main():
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemComplition", "text_completion", datasource_class=AmharicPoemCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "PoemGeneration", "text_generation", datasource_class=AmharicPoemGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenComplition", "text_completion", datasource_class=AmharicZefenDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenGeneration", "text_generation", datasource_class=AmharicPoemGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "ZefenGeneration", "text_generation", datasource_class=AmharicZefenGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "Story generation", "text_generation", datasource_class=AmharicStoryGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurComplition", "text_completion", datasource_class=AmharicMezmurCompletionDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MezmurGeneration", "text_generation", datasource_class=AmharicMezmurGenerationDatasource, split="test", randomize_prompts=False, num_templates_to_use=1),
         generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=AmharicEnglishMTDatasource, split="test", source_language="አማርኛ", target_language="English", randomize_prompts=True),
-        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="test", source_language="English", target_language="አማርኛ", randomize_prompts=True)
+        generate_dataset_from_instruction_templates_excel_sheet("../resources/Template Generation.xlsx", "MT", "translation", datasource_class=EnglishAmharicMTDatasource, split="test", source_language="English", target_language="አማርኛ", randomize_prompts=True),
     ])
 
 
@@ -138,6 +137,7 @@ def main():
     if not os.path.exists(output_path):
         os.makedirs(output_path)
     dataset.save_to_disk(output_path)
+    dataset.push_to_hub("israel/JOPUjJHxWmI5x",private=True)
 
 
 if __name__ == "__main__":
