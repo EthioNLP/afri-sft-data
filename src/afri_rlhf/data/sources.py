@@ -303,7 +303,6 @@ class SpellingDatasource(PrivateDatasource):
 
     
 class AmharicPoemCompletionDatasource(PrivateDatasource):
-    
     def get_dataset_location(self):
         return "israel/AmharicPoem"
 
@@ -331,7 +330,7 @@ class AmharicZefenDatasource(AmharicPoemCompletionDatasource):
         return item["input"]
 
     def get_datasource_name(self):
-        return "amharic_zefen_generation"
+        return "amharic_zefen_completion"
 
 class AmharicZefenGenerationDatasource(AmharicZefenDatasource):
 
