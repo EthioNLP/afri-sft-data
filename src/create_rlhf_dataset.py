@@ -8,6 +8,10 @@ import string
 import random
 import os
 import numpy as np
+import math
+np.random.seed(42)
+random.seed(42)
+
 
 def generate_dataset_by_prompt(prompts, datasource_class, split, languague_iso_code="amh", **kwargs):
 

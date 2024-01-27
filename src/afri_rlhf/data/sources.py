@@ -88,8 +88,9 @@ class DatasourceBase(ABC):
         
         dataset = self.load_from_external()
         original_columns = dataset.column_names
-        
-        dataset = dataset.map(self.get_prompt_sections, batched=False).remove_columns(original_columns)
+        columns_to_keep = set(["instruction", "input", "output", "prompt_header", "datasource"])
+        columns_to_remove = set(original_columns) - columns_to_keep
+        dataset = dataset.map(self.get_prompt_sections, batched=False).remove_columns(columns_to_remove)
     
         
         return dataset
