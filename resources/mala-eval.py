@@ -26,14 +26,6 @@ from transformers import pipeline
 
 
 
-# from transformers import AutoTokenizer, AutoModelForCausalLM
-# from peft import PeftModel
-
-# base_model = AutoModelForCausalLM.from_pretrained("daryl149/llama-2-7b-hf")
-# base_model.resize_token_embeddings(260164)
-# tokenizer = AutoTokenizer.from_pretrained('MaLA-LM/mala-500')
-# model = PeftModel.from_pretrained(base_model, 'MaLA-LM/mala-500')
-
 from typing import Optional, Any
 
 import torch
@@ -160,7 +152,7 @@ pipe = load_adapted_hf_generation_pipeline(
     top_p=1.0,  # [optional] If set to float < 1, only the smallest set of most probable tokens with probabilities that add up to top_p or higher are kept for generation.
     temperature=1.0,  # [optional] The value used to modulate the next token probabilities.
     )
-hf_dataset = datasets.load_dataset("israel/JOPUjJHxWmI5x",use_auth_token="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")['test']
+hf_dataset = datasets.load_dataset("israel/JOPUjJHxWmI5x",split='test[:4]',use_auth_token="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") #['test']
 BASE_PROMPT = """Below is an interaction between a human and an AI fluent in English and Amharic, providing reliable and informative answers. The AI is supposed to answer test questions from the human with short responses saying just the answer and nothing else.
 
 Human: {instruction}
@@ -169,7 +161,7 @@ Assistant [Amharic] : """
 def f(batch):
     return {'response':[pipe(BASE_PROMPT.format(instruction=f"{instruction}\n{input}"))[0]['generated_text'][len(BASE_PROMPT.format(instruction=f"{instruction}\n{input}")):] for instruction,input in zip(batch['instruction'],batch['input'])]}
     
-hf_dataset.map(lambda batch:f(batch) ,batch_size=8, batched=True)[0]
+hf_dataset = hf_dataset.map(lambda batch:f(batch) ,batch_size=8, batched=True)
 
 
 hf_dataset.to_pandas().to_csv('mala-mala.csv',index=False)
