@@ -1,4 +1,4 @@
-# RLHF Data Generation
+# Instruction Data Generation
 
 This repository generates instruction tuning dataset from different datasets.  
 
