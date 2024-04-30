@@ -152,7 +152,7 @@ pipe = load_adapted_hf_generation_pipeline(
     top_p=1.0,  # [optional] If set to float < 1, only the smallest set of most probable tokens with probabilities that add up to top_p or higher are kept for generation.
     temperature=1.0,  # [optional] The value used to modulate the next token probabilities.
     )
-hf_dataset = datasets.load_dataset("israel/JOPUjJHxWmI5x",split='test[:4]',use_auth_token="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") #['test']
+hf_dataset = datasets.load_dataset("israel/JOPUjJHxWmI5x",split='test[:4]',use_auth_token="") #['test']
 BASE_PROMPT = """Below is an interaction between a human and an AI fluent in English and Amharic, providing reliable and informative answers. The AI is supposed to answer test questions from the human with short responses saying just the answer and nothing else.
 
 Human: {instruction}
